@@ -37,26 +37,27 @@ func main() {
 	log.Fatal(server.ListenAndServe())
 }
 
-func (p *ProxyHandler) MakeProxiedRequest(method, url string, headers http.Header) (resp *http.Response, e error) {
-	req, _ := http.NewRequest(method, url, nil)
-	req.SetBasicAuth(p.Username, p.Password)
-	for k, v := range headers {
-		for _, vv := range v {
-			req.Header.Add(k, vv)
+func (p *ProxyHandler) copyHeaders(source, destination http.Header) {
+	for k, values := range source {
+		for _, v := range values {
+			destination.Add(k, v)
 		}
 	}
-	//log.Printf("Request headers: %v", req.Header)
+}
+
+func (p *ProxyHandler) MakeProxiedRequest(original *http.Request, url string) (resp *http.Response, e error) {
+	log.Printf("Requesting URL (%s) for client (%s) with headers (%v).", url, original.RemoteAddr, original.Header)
+	req, _ := http.NewRequest(original.Method, url, nil)
+	req.SetBasicAuth(p.Username, p.Password)
+	p.copyHeaders(original.Header, req.Header)
 	cli := &http.Client{}
 	resp, e = cli.Do(req)
 	return
 }
 
-func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	requestUrl := fmt.Sprintf("%s%s", p.ProxyBase, r.RequestURI)
-	log.Printf("Requesting URL (%s) for client (%s) with headers (%v).", requestUrl, r.RemoteAddr, r.Header)
-	//log.Printf("Requesting URL (%s) for client (%s).", requestUrl, r.RemoteAddr)
-	resp, e := p.MakeProxiedRequest(r.Method, requestUrl, r.Header)
-	//log.Printf("Received headers: %v", resp.Header)
+func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
+	requestUrl := fmt.Sprintf("%s%s", p.ProxyBase, req.RequestURI)
+	resp, e := p.MakeProxiedRequest(req, requestUrl)
 	if e != nil {
 		log.Printf("Got error when requesting url (%s): %v", requestUrl, e)
 	}
@@ -64,11 +65,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if readErr != nil {
 		log.Printf("Unable to read response body: %v", readErr)
 	}
-	resp.Body.Close()
-	for k, v := range resp.Header {
-		for _, vv := range v {
-			w.Header().Add(k, vv)
-		}
-	}
+	defer resp.Body.Close()
+	p.copyHeaders(resp.Header, w.Header())
 	w.Write(body)
 }
