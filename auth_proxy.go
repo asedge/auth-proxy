@@ -12,31 +12,6 @@ type ProxyHandler struct {
 	Username, Password, ProxyBase string
 }
 
-func main() {
-	var user, pass, base string
-	var ok bool
-
-	if user, ok = os.LookupEnv("USERNAME"); !ok {
-		log.Fatal("ERROR: Must set USERNAME env.")
-	}
-
-	if pass, ok = os.LookupEnv("PASSWORD"); !ok {
-		log.Fatal("ERROR: Must set PASSWORD env.")
-	}
-
-	if base, ok = os.LookupEnv("PROXY_BASE"); !ok {
-		log.Fatal("ERROR: Must set PROXY_BASE env.")
-	}
-
-	proxy := ProxyHandler{Username: user, Password: pass, ProxyBase: base}
-	server := &http.Server{
-		Addr:    ":8989",
-		Handler: &proxy,
-	}
-
-	log.Fatal(server.ListenAndServe())
-}
-
 func (p *ProxyHandler) copyHeaders(source, destination http.Header) {
 	for k, values := range source {
 		for _, v := range values {
@@ -68,4 +43,29 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	defer resp.Body.Close()
 	p.copyHeaders(resp.Header, w.Header())
 	w.Write(body)
+}
+
+func main() {
+	var user, pass, base string
+	var ok bool
+
+	if user, ok = os.LookupEnv("USERNAME"); !ok {
+		log.Fatal("ERROR: Must set USERNAME env.")
+	}
+
+	if pass, ok = os.LookupEnv("PASSWORD"); !ok {
+		log.Fatal("ERROR: Must set PASSWORD env.")
+	}
+
+	if base, ok = os.LookupEnv("PROXY_BASE"); !ok {
+		log.Fatal("ERROR: Must set PROXY_BASE env.")
+	}
+
+	proxy := ProxyHandler{Username: user, Password: pass, ProxyBase: base}
+	server := &http.Server{
+		Addr:    ":8989",
+		Handler: &proxy,
+	}
+
+	log.Fatal(server.ListenAndServe())
 }
