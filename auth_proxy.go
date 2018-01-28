@@ -20,9 +20,14 @@ func (p *ProxyHandler) copyHeaders(source, destination http.Header) {
 	}
 }
 
+// Proxies an incoming request on behalf of the requester.
 func (p *ProxyHandler) MakeProxiedRequest(original *http.Request, url string) (resp *http.Response, e error) {
 	log.Printf("Requesting URL (%s) for client (%s) with headers (%v).", url, original.RemoteAddr, original.Header)
-	req, _ := http.NewRequest(original.Method, url, nil)
+	req, err := http.NewRequest(original.Method, url, nil)
+	if err != nil {
+		log.Printf("Got error when making new request (method: %s, url: %s): %v", original.Method, url, err)
+		return nil, err
+	}
 	req.SetBasicAuth(p.Username, p.Password)
 	p.copyHeaders(original.Header, req.Header)
 	cli := &http.Client{}
