@@ -47,6 +47,8 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	}
 	defer resp.Body.Close()
 	p.copyHeaders(resp.Header, w.Header())
+	// Set the status code from the proxied request.
+	w.WriteHeader(resp.StatusCode)
 	w.Write(body)
 }
 
