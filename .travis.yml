@@ -3,8 +3,8 @@ go:
   - 1.8.x
   - 1.9.x
 script:
-	- go test
-	- go vet
+  - go test
+  - go vet
 branches:
   only:
   - master
