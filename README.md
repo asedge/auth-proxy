@@ -4,7 +4,7 @@ This proxy allows unauthenticated access to a web resource that normally require
 
 ### Usage:
 ```
-USERNAME=sean PASSWORD=secret PROXY_BASE=https://my.local.artifact.repo/ ./go-auth-proxy
+USERNAME=sean PASSWORD=secret PROXY_BASE=https://my.local.artifact.repo/ ./auth-proxy
 ```
 
 ### Build & Run Docker image:
