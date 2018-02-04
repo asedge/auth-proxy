@@ -1,5 +1,7 @@
 # auth-proxy
 
+[![Build Status](https://travis-ci.org/asedge/auth-proxy.png)](https://travis-ci.org/asedge/auth-proxy)
+
 This proxy allows unauthenticated access to a web resource that normally requires basic authentication by setting the basic auth header using the USERNAME/PASSWORD provided.
 
 ### Usage:
