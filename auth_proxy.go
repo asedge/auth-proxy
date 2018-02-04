@@ -24,7 +24,7 @@ func (p *ProxyHandler) copyHeaders(source, destination http.Header) {
 // Proxies an incoming request on behalf of the requester.
 func (p *ProxyHandler) MakeProxiedRequest(original *http.Request, url string) (resp *http.Response, e error) {
 	requestorAddr, _, _ := net.SplitHostPort(original.RemoteAddr)
-	log.Printf("Requesting URL (%s) for client (%s) with headers (%v).", url, requestorAddr, original.Header)
+	log.Printf("Requesting URL (%s) for client (%s).", url, requestorAddr)
 	req, err := http.NewRequest(original.Method, url, nil)
 	if err != nil {
 		log.Printf("Got error when making new request (method: %s, url: %s): %v", original.Method, url, err)
