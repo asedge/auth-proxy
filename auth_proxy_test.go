@@ -122,6 +122,40 @@ func TestProxyHandlerForwardsHeadersFromClient(t *testing.T) {
 	}
 }
 
+func TestProxyHandlerSetsXForwardForHeader(t *testing.T) {
+	var actualHeader http.Header
+	expectedHeader := []string{"127.0.0.1"}
+
+	// Set up fake remote server to proxy to.
+	remoteServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		actualHeader = r.Header
+		fmt.Fprintln(w, "Hello, client")
+	}))
+	defer remoteServer.Close()
+
+	// Set up proxy server.
+	handler := &ProxyHandler{Username: "joe", Password: "secret", ProxyBase: remoteServer.URL}
+	proxyServer := httptest.NewServer(handler)
+	defer proxyServer.Close()
+
+	// Request setup & execution
+	url := fmt.Sprintf("%s/foo", proxyServer.URL)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	client := &http.Client{}
+	_, e := client.Do(req)
+	if e != nil {
+		t.Fatalf("Could not make request: %v", req)
+	}
+
+	// Assertions
+	if !reflect.DeepEqual(actualHeader["X-Forward-For"], expectedHeader) {
+		t.Errorf("Expected X-Forward-For header to be set to %v but got %v", expectedHeader, actualHeader["X-Forward-For"])
+	}
+}
+
 func TestProxyHandlerSetsAuthenticationHeader(t *testing.T) {
 	var actualHeader http.Header
 	authentication := "joe:secret"
