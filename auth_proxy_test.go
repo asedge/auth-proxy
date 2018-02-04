@@ -9,6 +9,39 @@ import (
 	"testing"
 )
 
+func TestProxyHandlerReturnsErrorWhenRemoteServerUnavailable(t *testing.T) {
+	expectedStatusCode := 502
+
+	// Set up fake remote server to proxy to.
+	remoteServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(expectedStatusCode)
+		fmt.Fprintln(w, "Not found")
+	}))
+
+	// Set up proxy server.
+	handler := &ProxyHandler{Username: "joe", Password: "secret", ProxyBase: remoteServer.URL}
+	proxyServer := httptest.NewServer(handler)
+	defer proxyServer.Close()
+	remoteServer.Close()
+
+	// Request setup & execution
+	url := fmt.Sprintf("%s/foo", proxyServer.URL)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+	client := &http.Client{}
+	resp, e := client.Do(req)
+	if e != nil {
+		t.Fatalf("Could not make request: %v", req)
+	}
+
+	// Assertions
+	if resp.StatusCode != expectedStatusCode {
+		t.Errorf("Expected Status Code to be %v but got %v", expectedStatusCode, resp.StatusCode)
+	}
+}
+
 func TestProxyHandlerReturnsStatusCodeFromServer(t *testing.T) {
 	expectedStatusCode := 404
 
