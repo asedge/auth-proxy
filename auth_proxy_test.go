@@ -25,7 +25,7 @@ func TestProxyHandlerReturnsErrorWhenRemoteServerUnavailable(t *testing.T) {
 	remoteServer.Close()
 
 	// Request setup & execution
-	url := fmt.Sprintf("%s/foo", proxyServer.URL)
+	url := fmt.Sprintf("%s/%s", proxyServer.URL, t.Name())
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -58,7 +58,7 @@ func TestProxyHandlerReturnsStatusCodeFromServer(t *testing.T) {
 	defer proxyServer.Close()
 
 	// Request setup & execution
-	url := fmt.Sprintf("%s/foo", proxyServer.URL)
+	url := fmt.Sprintf("%s/%s", proxyServer.URL, t.Name())
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -97,7 +97,7 @@ func TestProxyHandlerReturnsHeadersFromServer(t *testing.T) {
 	defer proxyServer.Close()
 
 	// Request setup & execution
-	url := fmt.Sprintf("%s/foo", proxyServer.URL)
+	url := fmt.Sprintf("%s/%s", proxyServer.URL, t.Name())
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -133,7 +133,7 @@ func TestProxyHandlerForwardsHeadersFromClient(t *testing.T) {
 	defer proxyServer.Close()
 
 	// Request setup & execution
-	url := fmt.Sprintf("%s/foo", proxyServer.URL)
+	url := fmt.Sprintf("%s/%s", proxyServer.URL, t.Name())
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -172,7 +172,7 @@ func TestProxyHandlerSetsXForwardForHeader(t *testing.T) {
 	defer proxyServer.Close()
 
 	// Request setup & execution
-	url := fmt.Sprintf("%s/foo", proxyServer.URL)
+	url := fmt.Sprintf("%s/%s", proxyServer.URL, t.Name())
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -209,7 +209,7 @@ func TestProxyHandlerSetsAuthenticationHeader(t *testing.T) {
 	defer proxyServer.Close()
 
 	// Request setup & execution
-	url := fmt.Sprintf("%s/foo", proxyServer.URL)
+	url := fmt.Sprintf("%s/%s", proxyServer.URL, t.Name())
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -243,7 +243,7 @@ func TestProxyHandlerUsesRequestMethod(t *testing.T) {
 	defer proxyServer.Close()
 
 	// Request setup & execution
-	url := fmt.Sprintf("%s/foo", proxyServer.URL)
+	url := fmt.Sprintf("%s/%s", proxyServer.URL, t.Name())
 	req, err := http.NewRequest(expectedMethod, url, nil)
 	if err != nil {
 		t.Fatal(err)
