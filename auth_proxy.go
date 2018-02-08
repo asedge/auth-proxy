@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net"
@@ -10,7 +9,7 @@ import (
 )
 
 type ProxyHandler struct {
-	Username, Password, ProxyBase string
+	Username, Password string
 }
 
 func (p *ProxyHandler) copyHeaders(source, destination http.Header) {
@@ -39,10 +38,9 @@ func (p *ProxyHandler) MakeProxiedRequest(original *http.Request, url string) (r
 }
 
 func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	requestUrl := fmt.Sprintf("%s%s", p.ProxyBase, req.RequestURI)
-	resp, e := p.MakeProxiedRequest(req, requestUrl)
+	resp, e := p.MakeProxiedRequest(req, req.RequestURI)
 	if e != nil {
-		log.Printf("Got error when requesting url (%s): %v", requestUrl, e)
+		log.Printf("Got error when requesting url (%s): %v", req.RequestURI, e)
 		w.WriteHeader(502)
 		return
 	}
@@ -58,7 +56,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	var user, pass, base string
+	var user, pass string
 	var ok bool
 
 	if user, ok = os.LookupEnv("USERNAME"); !ok {
@@ -69,11 +67,7 @@ func main() {
 		log.Fatal("ERROR: Must set PASSWORD env.")
 	}
 
-	if base, ok = os.LookupEnv("PROXY_BASE"); !ok {
-		log.Fatal("ERROR: Must set PROXY_BASE env.")
-	}
-
-	proxy := ProxyHandler{Username: user, Password: pass, ProxyBase: base}
+	proxy := ProxyHandler{Username: user, Password: pass}
 	server := &http.Server{
 		Addr:    ":8989",
 		Handler: &proxy,
