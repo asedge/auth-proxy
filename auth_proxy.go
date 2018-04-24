@@ -41,7 +41,7 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 	resp, e := p.MakeProxiedRequest(req, req.RequestURI)
 	if e != nil {
 		log.Printf("Got error when requesting url (%s): %v", req.RequestURI, e)
-		w.WriteHeader(502)
+		w.WriteHeader(http.StatusBadGateway)
 		return
 	}
 	body, readErr := ioutil.ReadAll(resp.Body)

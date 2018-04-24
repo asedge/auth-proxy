@@ -11,7 +11,7 @@ import (
 )
 
 func TestProxyHandlerReturnsErrorWhenRemoteServerUnavailable(t *testing.T) {
-	expectedStatusCode := 502
+	expectedStatusCode := http.StatusBadGateway
 
 	// Set up fake remote server to proxy to.
 	remoteServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -45,7 +45,7 @@ func TestProxyHandlerReturnsErrorWhenRemoteServerUnavailable(t *testing.T) {
 }
 
 func TestProxyHandlerReturnsStatusCodeFromServer(t *testing.T) {
-	expectedStatusCode := 404
+	expectedStatusCode := http.StatusNotFound
 
 	// Set up fake remote server to proxy to.
 	remoteServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -294,7 +294,7 @@ func TestProxyHandlerProxiesRequest(t *testing.T) {
 	}
 
 	// Assertions
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		t.Errorf("Proxying of request failed.")
 	}
 }
