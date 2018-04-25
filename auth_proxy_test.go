@@ -3,12 +3,18 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"reflect"
 	"testing"
 )
+
+func init() {
+	log.SetOutput(ioutil.Discard)
+}
 
 func TestProxyHandlerReturnsErrorWhenRemoteServerUnavailable(t *testing.T) {
 	expectedStatusCode := http.StatusBadGateway
