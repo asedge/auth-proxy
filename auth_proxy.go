@@ -56,18 +56,21 @@ func (p *ProxyHandler) ServeHTTP(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	var user, pass string
-	var ok bool
+	keys := []string{
+		"USERNAME",
+		"PASSWORD",
+	}
+	config := map[string]string{}
 
-	if user, ok = os.LookupEnv("USERNAME"); !ok {
-		log.Fatal("ERROR: Must set USERNAME env.")
+	for _, key := range keys {
+		v := os.Getenv(key)
+		if v == "" {
+			log.Fatalf("ERROR: Must set %s env.", key)
+		}
+		config[key] = v
 	}
 
-	if pass, ok = os.LookupEnv("PASSWORD"); !ok {
-		log.Fatal("ERROR: Must set PASSWORD env.")
-	}
-
-	proxy := ProxyHandler{Username: user, Password: pass}
+	proxy := ProxyHandler{Username: config["USERNAME"], Password: config["PASSWORD"]}
 	server := &http.Server{
 		Addr:    ":8989",
 		Handler: &proxy,
